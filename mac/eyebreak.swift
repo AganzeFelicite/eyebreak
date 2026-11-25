@@ -11,8 +11,7 @@ let messagesFile = Bundle.main.executableURL!.deletingLastPathComponent()
 // Non-activating panel: takes clicks + keys without stealing app focus (macOS 26 blocks activate())
 class Overlay: NSPanel {
     override var canBecomeKey: Bool { true }
-    // swallow typing mid-break; only Esc (key code 53) reaches the Skip button
-    override func keyDown(with event: NSEvent) { if event.keyCode == 53 { super.keyDown(with: event) } }
+    override func keyDown(with event: NSEvent) {}  // swallow all typing: no way to skip the break
 }
 
 class App: NSObject, NSApplicationDelegate {
@@ -26,8 +25,6 @@ class App: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(withTitle: "Break now", action: #selector(startBreak), keyEquivalent: "b").target = self
         menu.addItem(withTitle: "Pause", action: #selector(togglePause), keyEquivalent: "p").target = self
-        menu.addItem(.separator())
-        menu.addItem(withTitle: "Quit", action: #selector(NSApplication.terminate), keyEquivalent: "q")
         item.menu = menu
         // .common so the countdown keeps running while the menu is open
         RunLoop.main.add(Timer(timeInterval: 1, target: self, selector: #selector(tick), userInfo: nil, repeats: true), forMode: .common)
@@ -73,14 +70,10 @@ class App: NSObject, NSApplicationDelegate {
             w.hidesOnDeactivate = false
 
             let count = label("\(rest)", NSFont.monospacedDigitSystemFont(ofSize: 140, weight: .bold))
-            let skip = NSButton(title: "Skip (Esc)", target: self, action: #selector(endBreak))
-            skip.keyEquivalent = "\u{1b}"
-            skip.refusesFirstResponder = true  // so a stray Space while typing doesn't skip
             let stack = NSStackView(views: [
                 label("Look at something 20 feet away", .systemFont(ofSize: 44, weight: .semibold)),
                 count,
                 label(lastMessage, .systemFont(ofSize: 26)),
-                skip,
             ])
             stack.orientation = .vertical
             stack.spacing = 24
@@ -98,8 +91,8 @@ class App: NSObject, NSApplicationDelegate {
         render()
     }
 
-    @objc func endBreak() {
-        if left <= 0 { NSSound(named: "Glass")?.play() }  // audible cue: your eyes are off-screen
+    func endBreak() {
+        NSSound(named: "Glass")?.play()  // audible cue: your eyes are off-screen
         windows.forEach { $0.orderOut(nil) }
         windows = []
         counts = []

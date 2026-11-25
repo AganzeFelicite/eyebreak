@@ -25,6 +25,9 @@ public class EyeBreak {
         @Override protected void onCreate(Bundle b) {
             super.onCreate(b);
             if (Build.VERSION.SDK_INT >= 33) requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 0);
+            // system "Let app always run in background?" prompt (= Battery: Unrestricted)
+            if (!getSystemService(PowerManager.class).isIgnoringBatteryOptimizations(getPackageName()))
+                startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName())));
             startForegroundService(new Intent(this, Svc.class));
             TextView t = new TextView(this);
             t.setText("EyeBreak is running.\n\nAfter every 20 minutes of screen time a 1-minute break covers the screen: look at something 20 feet away.\n\nIt starts by itself when the phone boots.");
@@ -131,8 +134,6 @@ public class EyeBreak {
         void showOverlay(String m) {
             if (overlay != null) return;
             TextView count = text(String.valueOf(REST / 1000), 96);
-            Button skip = new Button(this);
-            skip.setText("Skip");
             LinearLayout v = new LinearLayout(this);
             v.setOrientation(LinearLayout.VERTICAL);
             v.setGravity(Gravity.CENTER);
@@ -141,7 +142,6 @@ public class EyeBreak {
             v.addView(text("Look at something 20 feet away", 26));
             v.addView(count);
             v.addView(text(m, 20));
-            v.addView(skip);
             // full-screen, touch-blocking layer above every app; not focusable so the keyboard isn't hijacked
             getSystemService(WindowManager.class).addView(overlay = v, new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
@@ -155,7 +155,6 @@ public class EyeBreak {
                     getSystemService(Vibrator.class).vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE));
                 }
             }.start();
-            skip.setOnClickListener(x -> { timer.cancel(); closeOverlay(); });
         }
 
         void closeOverlay() {

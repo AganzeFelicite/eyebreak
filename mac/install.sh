@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build the menu bar app and keep it running: starts at every login, restarts if it crashes.
+# Build the menu bar app and keep it running always: starts at every login, relaunched if it exits.
 set -e
 cd "$(dirname "$0")"
 swiftc -O eyebreak.swift -o eyebreak
@@ -12,7 +12,7 @@ cat > "$P" <<PLIST
   <key>Label</key><string>io.github.aganzefelicite.eyebreak</string>
   <key>ProgramArguments</key><array><string>$PWD/eyebreak</string></array>
   <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>KeepAlive</key><true/>
 </dict>
 </plist>
 PLIST
