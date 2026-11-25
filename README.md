@@ -23,10 +23,10 @@ This builds the app, starts it now, and starts it again at every login. It also 
 
 Install `android/build/eyebreak.apk` on the phone, for example with Taildrop (`tailscale file cp android/build/eyebreak.apk <phone>:`) or with `adb install`. Then:
 
-1. Open **EyeBreak** once and allow notifications.
+1. Open **EyeBreak** once and allow notifications. Then tap **Allow full-screen breaks** and turn on **Display over other apps**. If that switch is greyed out, open App info → ⋮ → **Allow restricted settings** and try again.
 2. Set battery use to **Unrestricted** (Settings → Apps → EyeBreak → Battery), so Samsung/Android doesn't put it to sleep.
 
-The app only counts time while the screen is on. Every 20 minutes it shows a heads-up notification with a 1-minute countdown. If the screen is off for a full minute, the timer resets. The app starts again on its own after a reboot.
+The app only counts time while the screen is on. Every 20 minutes a dark full-screen overlay covers the phone with a 1-minute countdown and a **Skip** button, and the phone buzzes when the break ends. Until you allow the overlay, it shows a notification instead. If the screen is off for a full minute, the timer resets. The app starts again on its own after a reboot.
 
 ## Messages
 
